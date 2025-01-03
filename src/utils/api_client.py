@@ -25,6 +25,32 @@ class APIClient:
         )
         return response.json() if response.status_code == 200 else response.text
 
+    def submit_feedback(self, prediction_id, original_prediction, user_feedback, user_suggestion):
+        """
+        Submit feedback for a prediction
+
+        Args:
+            prediction_id (str): The unique identifier of the prediction
+            original_prediction (dict): The original prediction data
+            user_feedback (str): User feedback (e.g. 'positive' or 'negative')
+            user_suggestion (str): User suggested class/category
+
+        Returns:
+            dict: Response data if successful, otherwise error text
+        """
+        data = {
+            "id": prediction_id,
+            "original_prediction": original_prediction,
+            "user_feedback": user_feedback,
+            "user_suggestion": user_suggestion
+        }
+
+        response = requests.post(
+            self.config.FEEDBACK_ENDPOINT,
+            data=data
+        )
+        return response.json() if response.status_code == 200 else response.text
+
     def get_heatmap_data(self, filters):
         response = requests.get(
             self.config.HEATMAP_ENDPOINT,
