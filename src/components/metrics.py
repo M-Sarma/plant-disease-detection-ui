@@ -1,5 +1,7 @@
 import streamlit as st
-from utils.api_client import APIClient
+
+from src.utils.api_client import APIClient
+
 
 class MetricsComponent:
     def __init__(self):

@@ -1,8 +1,9 @@
 import streamlit as st
+from config import AppConfig
 from components.prediction import PredictionComponent
 from components.heatmap import HeatmapComponent
 from components.metrics import MetricsComponent
-from config import AppConfig
+
 
 class PlantDiseaseUI:
     def __init__(self):

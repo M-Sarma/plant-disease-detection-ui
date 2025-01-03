@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
-from utils.api_client import APIClient
+
+from src.utils.api_client import APIClient
+
 
 class HeatmapComponent:
     def __init__(self):

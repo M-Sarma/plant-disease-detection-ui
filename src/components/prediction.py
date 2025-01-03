@@ -2,7 +2,10 @@ import streamlit as st
 from streamlit_geolocation import streamlit_geolocation
 from PIL import Image
 import requests
-from utils.api_client import APIClient
+import traceback
+
+from src.utils.api_client import APIClient
+
 
 class PredictionComponent:
     def __init__(self):
@@ -23,6 +26,8 @@ class PredictionComponent:
             return None, None
         except Exception as e:
             st.error(f"Error processing prediction: {str(e)}")
+            traceback_str = traceback.format_exc()
+            print(traceback_str)
             return None, None
 
     def display_results(self, data):
@@ -45,10 +50,10 @@ class PredictionComponent:
     def render(self):
         st.subheader("Disease Prediction")
         uploaded_image = self.handle_image_upload()
-        
+
         if uploaded_image:
-            st.image(uploaded_image, caption="Selected Image", use_column_width=True)
+            st.image(uploaded_image, caption="Selected Image", use_container_width=True)
             location_data = streamlit_geolocation()
-            
-            if location_data['latitude'] and st.button("Analyze Image"):
+
+            if st.button("Analyze Image"):
                 self.process_prediction(uploaded_image, location_data)

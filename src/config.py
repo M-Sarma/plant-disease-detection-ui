@@ -11,10 +11,10 @@ class AppConfig:
     @property
     def headers(self):
         return {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         }
     @property
     def multipart_headers(self):
         return {
-            'Content-Type: multipart/form-data',
+            'Content-Type': 'multipart/form-data'
         }
