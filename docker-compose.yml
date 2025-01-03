@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  ui:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://api-service:5000
+      - API_KEY=${API_KEY}
+    restart: always
