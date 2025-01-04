@@ -6,7 +6,7 @@ class AppConfig:
         self.PREDICTION_ENDPOINT = f"{self.API_BASE_URL}/api/predict"
         self.FEEDBACK_ENDPOINT = f"{self.API_BASE_URL}/api/feedback"
         self.HEATMAP_ENDPOINT = f"{self.API_BASE_URL}/api/heatmap"
-        self.METRICS_ENDPOINT = f"{self.API_BASE_URL}/api/metrics"
+        #self.METRICS_ENDPOINT = f"{self.API_BASE_URL}/metrics"
 
     @property
     def headers(self):

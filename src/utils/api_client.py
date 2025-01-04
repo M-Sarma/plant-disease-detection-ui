@@ -58,10 +58,3 @@ class APIClient:
             headers=self.config.headers
         )
         return response.json() if response.status_code == 200 else None
-
-    def get_metrics(self):
-        response = requests.get(
-            self.config.METRICS_ENDPOINT,
-            headers=self.config.headers
-        )
-        return response.json() if response.status_code == 200 else None

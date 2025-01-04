@@ -17,6 +17,10 @@ class PredictionComponent:
             st.session_state.original_prediction = None
         if 'feedback_submitted' not in st.session_state:
             st.session_state.feedback_submitted = False
+        if 'feedback_choice' not in st.session_state:
+            st.session_state.feedback_choice = None
+        if 'selected_class' not in st.session_state:
+            st.session_state.selected_class = None
 
     def handle_image_upload(self):
         image_source = st.radio("Select Image Source", ("Upload Image", "Capture from Camera"))
@@ -28,6 +32,10 @@ class PredictionComponent:
         try:
             response = self.api_client.predict(image_file, location_data)
             if response:
+                # Reset feedback state when new prediction is made
+                st.session_state.feedback_submitted = False
+                st.session_state.feedback_choice = None
+                st.session_state.selected_class = None
                 self.display_results(response)
                 return response['id'], response['classification']
             return None, None
@@ -36,6 +44,16 @@ class PredictionComponent:
             traceback_str = traceback.format_exc()
             print(traceback_str)
             return None, None
+
+    def handle_feedback_change(self):
+        # Update feedback choice in session state
+        st.session_state.feedback_choice = st.session_state.feedback_radio
+        # Reset selected class when feedback type changes
+        st.session_state.selected_class = None
+
+    def handle_class_selection(self):
+        # Update selected class in session state
+        st.session_state.selected_class = st.session_state.feedback_select
 
     def submit_feedback(self, prediction_id, original_prediction, feedback_type, selected_class=None):
         try:
@@ -101,33 +119,42 @@ class PredictionComponent:
             feedback_col1, feedback_col2 = st.columns([2, 1])
 
             with feedback_col1:
+                # Calculate index for radio button
+                options = ["Positive", "Negative"]
+                default_idx = options.index(
+                    st.session_state.feedback_choice) if st.session_state.feedback_choice in options else 0
+
                 feedback_choice = st.radio(
-                    "Was the disease classification accurate?",
-                    options=["Positive", "Negative"],
+                    "Was the diagnosis accurate?",
+                    options=options,
                     horizontal=True,
-                    key="feedback_radio"
+                    key="feedback_radio",
+                    index=default_idx,
+                    on_change=self.handle_feedback_change
                 )
 
-            selected_class = None
-            if feedback_choice == "Negative":
-                st.markdown("#### Select the Correct Disease")
+            if st.session_state.feedback_choice == "Negative":
+                st.markdown("#### Select the Correct Diagnosis")
                 if data.get("feedback_prompt_list"):
                     options = [item['class_name'] for item in data["feedback_prompt_list"]]
                     selected_class = st.selectbox(
-                        "Alternative Options",
+                        "Alternative Diagnosis Options",
                         options=options,
-                        key="feedback_select"
+                        key="feedback_select",
+                        index=options.index(
+                            st.session_state.selected_class) if st.session_state.selected_class in options else 0,
+                        on_change=self.handle_class_selection
                     )
                 else:
-                    st.warning("No alternative classification available")
+                    st.warning("No alternative diagnoses available")
 
             with feedback_col2:
                 if st.button("Submit Feedback", key="submit_feedback"):
                     self.submit_feedback(
                         st.session_state.prediction_id,
                         st.session_state.original_prediction,
-                        feedback_choice,
-                        selected_class
+                        st.session_state.feedback_choice,
+                        st.session_state.selected_class
                     )
 
     def render(self):

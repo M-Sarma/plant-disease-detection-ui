@@ -2,7 +2,6 @@ import streamlit as st
 from config import AppConfig
 from components.prediction import PredictionComponent
 from components.heatmap import HeatmapComponent
-from components.metrics import MetricsComponent
 
 
 class PlantDiseaseUI:
@@ -11,8 +10,7 @@ class PlantDiseaseUI:
         self.setup_page_config()
         self.components = {
             'prediction': PredictionComponent(),
-            'heatmap': HeatmapComponent(),
-            'metrics': MetricsComponent()
+            'heatmap': HeatmapComponent()
         }
 
     def setup_page_config(self):
@@ -24,7 +22,7 @@ class PlantDiseaseUI:
 
     def run(self):
         st.title("Plant Disease Identification")
-        menu = ["Home", "Disease Prediction", "Heatmap", "Metrics"]
+        menu = ["Home", "Disease Prediction", "Heatmap"]
         choice = st.sidebar.selectbox("Navigation", menu)
 
         if choice == "Home":
