@@ -1,10 +1,25 @@
 import requests
+from requests.exceptions import ConnectionError, Timeout, RequestException
 from app.utils.config import AppConfig
 
 
 class APIClient:
     def __init__(self):
         self.config = AppConfig()
+
+    def handle_request(self, method, url, **kwargs):
+        try:
+            response = method(url, **kwargs)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {"error": f"HTTP {response.status_code}: {response.text}"}
+        except ConnectionError:
+            return {"error": "Connection failed. Please ensure the server is running and accessible."}
+        except Timeout:
+            return {"error": "The request timed out. Please try again later."}
+        except RequestException as e:
+            return {"error": f"An unexpected error occurred: {str(e)}"}
 
     def predict(self, image_file, location_data):
         files = {"image": ("image.jpg", image_file, "image/jpeg")}
@@ -16,26 +31,14 @@ class APIClient:
         if location_data.get("longitude") is not None:
             data["longitude"] = location_data["longitude"]
 
-        response = requests.post(
+        return self.handle_request(
+            requests.post,
             self.config.PREDICTION_ENDPOINT,
             files=files,
             data=data
         )
-        return response.json() if response.status_code == 200 else response.text
 
     def submit_feedback(self, prediction_id, original_prediction, user_feedback, user_suggestion):
-        """
-        Submit feedback for a prediction
-
-        Args:
-            prediction_id (str): The unique identifier of the prediction
-            original_prediction (dict): The original prediction data
-            user_feedback (str): User feedback (e.g. 'positive' or 'negative')
-            user_suggestion (str): User suggested class/category
-
-        Returns:
-            dict: Response data if successful, otherwise error text
-        """
         data = {
             "id": prediction_id,
             "original_prediction": original_prediction,
@@ -43,23 +46,13 @@ class APIClient:
             "user_suggestion": user_suggestion
         }
 
-        response = requests.post(
+        return self.handle_request(
+            requests.post,
             self.config.FEEDBACK_ENDPOINT,
             data=data
         )
-        return response.json() if response.status_code == 201 else response.text
 
     def get_heatmap_data(self, filter_type, **kwargs):
-        """
-        Fetch heatmap data based on the filter type and parameters.
-
-        Args:
-            filter_type (str): Type of filter ('days', 'location', 'seasonal_clusters', 'nearby').
-            kwargs: Additional parameters for the API call.
-
-        Returns:
-            dict: Heatmap data if successful, otherwise error text.
-        """
         url = self.config.HEATMAP_ENDPOINT
         params = {}
         if filter_type == "by_days":
@@ -82,5 +75,9 @@ class APIClient:
                 "radius": kwargs.get("radius", 10),
                 "days": kwargs.get("days", 30)
             })
-        response = requests.get(url, params=params)
-        return response.json() if response.status_code == 200 else response.text
+
+        return self.handle_request(
+            requests.get,
+            url,
+            params=params
+        )

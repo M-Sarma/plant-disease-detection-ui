@@ -46,21 +46,25 @@ def predict_page():
         if image is not None:
             prediction_response = client.predict(image_file=image, location_data=location_data)
 
-            classification = prediction_response["classification"]
-            disease_details = prediction_response["disease_details"]
+            if "error" in prediction_response:
+                st.error(prediction_response["error"])
 
-            st.write("### Prediction Results")
-            st.write(f"**Class Name:** {classification['class_name']}")
-            st.write(f"**Confidence:** {classification['confidence']:.2f}")
-            st.write(f"**Description:** {disease_details['description']}")
-            st.write("**Solutions:**")
-            for solution in disease_details["solutions"]:
-                st.write(f"- {solution}")
+            else:
+                classification = prediction_response["classification"]
+                disease_details = prediction_response["disease_details"]
 
-            # Store prediction in session state
-            st.session_state.prediction_data = prediction_response
-            st.session_state.user_feedback = None  # Reset feedback
-            st.session_state.user_suggestion = None  # Reset classification suggestion
+                st.write("### Prediction Results")
+                st.write(f"**Class Name:** {classification['class_name']}")
+                st.write(f"**Confidence:** {classification['confidence']:.2f}")
+                st.write(f"**Description:** {disease_details['description']}")
+                st.write("**Solutions:**")
+                for solution in disease_details["solutions"]:
+                    st.write(f"- {solution}")
+
+                # Store prediction in session state
+                st.session_state.prediction_data = prediction_response
+                st.session_state.user_feedback = None  # Reset feedback
+                st.session_state.user_suggestion = None  # Reset classification suggestion
         else:
             st.error("Please upload or capture an image.")
 
@@ -99,7 +103,12 @@ def predict_page():
                 user_feedback=user_feedback.lower(),
                 user_suggestion=st.session_state.get("user_suggestion")  # Pass only if selected
             )
+
+            if "error" in feedback_response:
+                st.error(feedback_response["error"])
+
             if isinstance(feedback_response, dict):
                 st.success("Thank you for your feedback!")
+
             else:
                 st.error("Failed to submit feedback. Please try again.")

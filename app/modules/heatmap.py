@@ -95,11 +95,15 @@ def heatmap_page():
         with st.spinner("Fetching and processing data..."):
             try:
                 heatmap_data = client.get_heatmap_data(filter_type.lower().replace(" ", "_"), **params)
-                if not heatmap_data or not isinstance(heatmap_data, dict):
-                    raise ValueError("No data returned from the API or invalid format.")
 
-                st.session_state.heatmap_data = heatmap_data  # Save data to session state
-                st.success("Heatmap data fetched successfully!")
+                if "error" in heatmap_data:
+                    st.error(heatmap_data["error"])
+                else:
+                    if not heatmap_data or not isinstance(heatmap_data, dict):
+                        raise ValueError("No data returned from the API or invalid format.")
+
+                    st.session_state.heatmap_data = heatmap_data  # Save data to session state
+                    st.success("Heatmap data fetched successfully!")
             except Exception as e:
                 st.error(f"Error fetching data: {str(e)}")
                 st.session_state.heatmap_data = None
