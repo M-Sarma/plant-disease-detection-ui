@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.py'
+
+jobs:
+  installreqs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+  
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+  build:
+    needs: installreqs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.6'
+      - name: Prepare build directory
+        run: mkdir -p dist
+      - name: Build package
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: my-build-package
+          path: dist/*
+          retention-days: 1
+
+
+  push-image:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo Checkout
+        uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: my-build-package
+          path: ml_prediction_api
+      - name: Login to Docker hub
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER_NAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASS_TOKEN }}
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USER_NAME }}/ml-prediction-fastapi:latest .
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USER_NAME }}/ml-prediction-fastapi
+      - name: Logout from Docker hub
+        run: docker logout
