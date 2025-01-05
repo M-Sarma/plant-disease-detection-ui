@@ -1,6 +1,6 @@
 import requests
 
-from src.config import AppConfig
+from app.utils.config import AppConfig
 
 
 class APIClient:
@@ -49,12 +49,12 @@ class APIClient:
             self.config.FEEDBACK_ENDPOINT,
             data=data
         )
-        return response.json() if response.status_code == 200 else response.text
+        return response.json() if response.status_code == 201 else response.text
 
-    def get_heatmap_data(self, filters):
-        response = requests.get(
-            self.config.HEATMAP_ENDPOINT,
-            params=filters,
-            headers=self.config.headers
-        )
-        return response.json() if response.status_code == 200 else None
+    #def get_heatmap_data(self, filters):
+     #   response = requests.get(
+      #      self.config.HEATMAP_ENDPOINT,
+       #     params=filters,
+        #    headers=self.config.headers
+        #)
+        #return response.json() if response.status_code == 200 else None
