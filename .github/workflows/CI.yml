@@ -64,7 +64,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: my-build-package
-          path: ml_prediction_api
+          path: ml_prediction_ui
       - name: Login to Docker hub
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER_NAME }}
@@ -72,8 +72,8 @@ jobs:
         run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USER_NAME }}/ml-prediction-fastapi:latest .
+          docker build -t ${{ secrets.DOCKER_USER_NAME }}/ml-prediction-ui:latest .
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USER_NAME }}/ml-prediction-fastapi
+        run: docker push ${{ secrets.DOCKER_USER_NAME }}/ml-prediction-ui
       - name: Logout from Docker hub
         run: docker logout
