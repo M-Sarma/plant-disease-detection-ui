@@ -62,10 +62,9 @@ class APIClient:
         """
         url = self.config.HEATMAP_ENDPOINT
         params = {}
-
-        if filter_type == "days":
+        if filter_type == "by_days":
             params.update({"days": kwargs.get("days", 30), "page": 1, "per_page": 50})
-        elif filter_type == "location":
+        elif filter_type == "by_location":
             params.update({
                 "latitude": kwargs.get("latitude"),
                 "longitude": kwargs.get("longitude"),
@@ -76,13 +75,12 @@ class APIClient:
                 "seasonal": kwargs.get("seasonal", 0),
                 "clusters": kwargs.get("clusters", 1)
             })
-        elif filter_type == "nearby":
+        elif filter_type == "nearby_points":
             params.update({
                 "latitude": kwargs.get("latitude"),
                 "longitude": kwargs.get("longitude"),
                 "radius": kwargs.get("radius", 10),
                 "days": kwargs.get("days", 30)
             })
-
         response = requests.get(url, params=params)
         return response.json() if response.status_code == 200 else response.text
