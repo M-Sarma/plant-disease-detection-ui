@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_geolocation import streamlit_geolocation
 
 from app.utils.api_client import APIClient
+from app.utils.confidence_gradient_bar import create_gradient_bar
 
 
 def predict_page():
@@ -55,8 +56,10 @@ def predict_page():
 
                 st.write("### Prediction Results")
                 st.write(f"**Class Name:** {classification['class_name']}")
-                st.write(f"**Confidence:** {classification['confidence']:.2f}")
+                st.write(f"**Confidence:**")
+                create_gradient_bar(classification['confidence'] * 100)
                 st.write(f"**Description:** {disease_details['description']}")
+                st.write(f"**Causes:** {disease_details['causes']}")
                 st.write("**Solutions:**")
                 for solution in disease_details["solutions"]:
                     st.write(f"- {solution}")
