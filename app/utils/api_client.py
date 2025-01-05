@@ -1,5 +1,4 @@
 import requests
-
 from app.utils.config import AppConfig
 
 
@@ -17,7 +16,6 @@ class APIClient:
         if location_data.get("longitude") is not None:
             data["longitude"] = location_data["longitude"]
 
-        # Do not set Content-Type; requests handles it
         response = requests.post(
             self.config.PREDICTION_ENDPOINT,
             files=files,
@@ -51,10 +49,40 @@ class APIClient:
         )
         return response.json() if response.status_code == 201 else response.text
 
-    #def get_heatmap_data(self, filters):
-     #   response = requests.get(
-      #      self.config.HEATMAP_ENDPOINT,
-       #     params=filters,
-        #    headers=self.config.headers
-        #)
-        #return response.json() if response.status_code == 200 else None
+    def get_heatmap_data(self, filter_type, **kwargs):
+        """
+        Fetch heatmap data based on the filter type and parameters.
+
+        Args:
+            filter_type (str): Type of filter ('days', 'location', 'seasonal_clusters', 'nearby').
+            kwargs: Additional parameters for the API call.
+
+        Returns:
+            dict: Heatmap data if successful, otherwise error text.
+        """
+        url = self.config.HEATMAP_ENDPOINT
+        params = {}
+
+        if filter_type == "days":
+            params.update({"days": kwargs.get("days", 30), "page": 1, "per_page": 50})
+        elif filter_type == "location":
+            params.update({
+                "latitude": kwargs.get("latitude"),
+                "longitude": kwargs.get("longitude"),
+                "radius": kwargs.get("radius", 10)
+            })
+        elif filter_type == "seasonal_clusters":
+            params.update({
+                "seasonal": kwargs.get("seasonal", 0),
+                "clusters": kwargs.get("clusters", 1)
+            })
+        elif filter_type == "nearby":
+            params.update({
+                "latitude": kwargs.get("latitude"),
+                "longitude": kwargs.get("longitude"),
+                "radius": kwargs.get("radius", 10),
+                "days": kwargs.get("days", 30)
+            })
+
+        response = requests.get(url, params=params)
+        return response.json() if response.status_code == 200 else response.text
