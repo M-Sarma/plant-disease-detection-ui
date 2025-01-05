@@ -1,20 +1,50 @@
 import streamlit as st
+from streamlit_geolocation import streamlit_geolocation
+
 from app.utils.api_client import APIClient
-from app.components.image_uploader import upload_or_capture_image
-from app.components.geolocation import collect_geolocation
+
 
 def predict_page():
     st.title("Plant Disease Prediction")
     client = APIClient()
 
-    # Upload or Capture Image
-    image = upload_or_capture_image()
-    location = collect_geolocation()
+    # Image Upload Section
+    st.write("### Upload or Capture an Image")
+    image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+    show_camera = st.button("Open Camera to Take Picture")
+    if show_camera:
+        image = st.camera_input("Take a photo")
 
-    # Show Prediction Results
+    # Display the uploaded or captured image
+    if image is not None:
+        st.image(image, caption="Selected Image", use_container_width=True)
+
+    # Geolocation Section
+    st.write("### Capture Your Location (Optional)")
+    location = streamlit_geolocation()  # Using streamlit-geolocation
+    location_data = {"latitude": None, "longitude": None}
+
+    if location and isinstance(location, dict):
+        try:
+            latitude = round(float(location.get('latitude', 0)), 5)
+            longitude = round(float(location.get('longitude', 0)), 5)
+
+            location_data = {
+                'latitude': latitude,
+                'longitude': longitude
+            }
+            st.write(f"*Captured location:* {location_data}")
+
+        except (TypeError, ValueError):
+            st.error("Could not get valid location coordinates")
+    else:
+        st.warning("Click the button above to capture location if needed.")
+
+    # Prediction Button
+    st.write("### Make a Prediction")
     if st.button("Predict"):
-        if image:
-            prediction_response = client.predict(image_file=image, location_data=location)
+        if image is not None:
+            prediction_response = client.predict(image_file=image, location_data=location_data)
 
             classification = prediction_response["classification"]
             disease_details = prediction_response["disease_details"]
@@ -32,7 +62,7 @@ def predict_page():
             st.session_state.user_feedback = None  # Reset feedback
             st.session_state.user_suggestion = None  # Reset classification suggestion
         else:
-            st.error("Please upload an image to continue.")
+            st.error("Please upload or capture an image.")
 
     # Feedback Section (only if prediction exists)
     if "prediction_data" in st.session_state:
