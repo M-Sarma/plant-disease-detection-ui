@@ -1,7 +1,7 @@
-streamlit==1.35.0
-pillow==10.2.0
+streamlit==1.41.1
+pillow==11.1.0
 requests==2.31.0
-pandas==2.2.0
+pandas==2.2.3
 streamlit-geolocation==0.0.10
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 matplotlib==3.9.4
