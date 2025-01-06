@@ -2,8 +2,7 @@ import streamlit as st
 import folium
 from folium.plugins import HeatMap, MarkerCluster
 from streamlit_folium import st_folium
-import json
-from app.utils.api_client import APIClient
+from utils.api_client import APIClient
 
 # Utility function to sanitize data
 def sanitize_keys(data):

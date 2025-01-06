@@ -1,8 +1,8 @@
 import streamlit as st
 from streamlit_geolocation import streamlit_geolocation
 
-from app.utils.api_client import APIClient
-from app.utils.confidence_gradient_bar import create_gradient_bar
+from utils.api_client import APIClient
+from utils.confidence_gradient_bar import create_gradient_bar
 
 
 def predict_page():

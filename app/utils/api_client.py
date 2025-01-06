@@ -1,6 +1,6 @@
 import requests
 from requests.exceptions import ConnectionError, Timeout, RequestException
-from app.utils.config import AppConfig
+from utils.config import AppConfig
 
 
 class APIClient:
