@@ -6,46 +6,21 @@ on:
     workflows: ["CI"]
     types:
       - completed
-  workflow_dispatch:  # Manual trigger
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Pull Docker Image
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER_NAME }}
+        run: sudo docker pull $DOCKER_USER/ml-prediction-ui:latest
 
-      - name: Login to AWS
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+      - name: Delete Old Docker Container
+        run: sudo docker rm -f ml-prediction-ui-container || true
 
-      - name: Download Task Definition
-        run: |
-          aws ecs describe-task-definition \
-            --task-definition plant-cls-task \
-            --query taskDefinition \
-            > task-definition.json
-
-      - name: Update Task Definition with Image
-        run: |
-          # Load the existing task definition
-          jq '.containerDefinitions[0].image = "ml-prediction-fastapi:latest"' task-definition.json > updated-task-definition.json
-
-      - name: Register Task Definition
-        run: |
-          aws ecs register-task-definition \
-            --cli-input-json .github/workflows/updated-task-definition.json
-
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          aws-region: us-east-1
-          service-name: plant-cls-web
-          cluster-name: plant-cls-12
-          task-definition: plant-cls-task
-
-env:
-  AWS_REGION: us-east-1 
+      - name: Run Docker Container
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER_NAME }}
+        run: sudo docker run -it -d -p 8001:8001 --name ml-prediction-ui-container $DOCKER_USER/ml-prediction-ui:latest
