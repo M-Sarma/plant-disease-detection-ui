@@ -1,8 +1,8 @@
 import sys
 import os
 import streamlit as st
-from app.modules.predict import predict_page
-from app.modules.heatmap import heatmap_page
+from modules.predict import predict_page
+from modules.heatmap import heatmap_page
 
 st.set_page_config(page_title="Plant Disease Detection App")
 # Add the project root directory to PYTHONPATH
