@@ -19,7 +19,7 @@ class APIClient:
         except Timeout:
             return {"error": "The request timed out. Please try again later."}
         except RequestException as e:
-            return {"error": f"An unexpected error occurred: {str(e)}"}
+            return {"error": f"An unexpected error has occurred: {str(e)}"}
 
     def predict(self, image_file, location_data):
         files = {"image": ("image.jpg", image_file, "image/jpeg")}
