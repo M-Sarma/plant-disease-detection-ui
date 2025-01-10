@@ -87,17 +87,33 @@ def predict_page():
                 st.error(prediction_response["error"])
             else:
                 classification = prediction_response["classification"]
-                disease_details = prediction_response["disease_details"]
 
-                st.write("### Prediction Results")
-                st.write(f"**Class Name:** {classification['class_name']}")
-                st.write(f"**Confidence:**")
-                create_gradient_bar(classification["confidence"] * 100)
-                st.write(f"**Description:** {disease_details['description']}")
-                st.write(f"**Causes:** {disease_details['causes']}")
-                st.write("**Solutions:**")
-                for solution in disease_details["solutions"]:
-                    st.write(f"- {solution}")
+                # Check if the plant is healthy
+                if "healthy" in classification["class_name_internal"].lower():
+                    display_name = classification['class_name_internal'].replace('___', ' - ').replace('_', ' ')
+                    st.write(f"**Class Name:** {display_name}")
+                    st.write(f"**Confidence:**")
+                    create_gradient_bar(classification["confidence"] * 100)
+                    st.success("✅ Good news! No disease detected. Your plant appears to be healthy.")
+                    st.write("""
+                                    **Recommendations to maintain plant health:**
+                                    - Continue regular watering and fertilization schedule
+                                    - Monitor for any changes in leaf color or texture
+                                    - Maintain good air circulation
+                                    - Keep the growing environment clean
+                                    - Regular pruning of dead or yellowing leaves
+                                    """)
+                else:
+                    disease_details = prediction_response["disease_details"]
+                    st.write("### Prediction Results")
+                    st.write(f"**Class Name:** {classification['class_name']}")
+                    st.write(f"**Confidence:**")
+                    create_gradient_bar(classification["confidence"] * 100)
+                    st.write(f"**Description:** {disease_details['description']}")
+                    st.write(f"**Causes:** {disease_details['causes']}")
+                    st.write("**Solutions:**")
+                    for solution in disease_details["solutions"]:
+                        st.write(f"- {solution}")
 
                 # Store prediction in session state
                 st.session_state.prediction_data = prediction_response
