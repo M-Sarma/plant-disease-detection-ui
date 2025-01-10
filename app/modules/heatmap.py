@@ -17,7 +17,7 @@ def sanitize_keys(data):
 def create_heatmap(data):
     try:
         # Initialize map with default center
-        map_obj = folium.Map(location=[34.0522, -118.2437], zoom_start=8, tiles="cartodbpositron")
+        map_obj = folium.Map(location=[13.01697, 77.56708], zoom_start=8, tiles="cartodbpositron")
 
         # Add clusters
         if "clusters" in data and data["clusters"]:
@@ -76,16 +76,16 @@ def heatmap_page():
         if filter_type == "By Days":
             params["days"] = int(st.number_input("Enter the number of days:", min_value=1, value=30))
         elif filter_type == "By Location":
-            params["latitude"] = float(st.number_input("Enter Latitude:", value=34.0522))
-            params["longitude"] = float(st.number_input("Enter Longitude:", value=-118.2437))
+            params["latitude"] = float(st.number_input("Enter Latitude:", value=13.01697))
+            params["longitude"] = float(st.number_input("Enter Longitude:", value=77.56708))
             params["radius"] = float(st.number_input("Enter Radius (in km):", min_value=1, value=10))
         elif filter_type == "Seasonal Clusters":
             params["seasonal"] = int(
                 st.selectbox("Seasonal Analysis:", [0, 1], format_func=lambda x: "Off" if x == 0 else "On"))
             params["clusters"] = int(st.number_input("Number of Clusters:", min_value=1, value=1))
         elif filter_type == "Nearby Points":
-            params["latitude"] = float(st.number_input("Enter Latitude:", value=37.7749))
-            params["longitude"] = float(st.number_input("Enter Longitude:", value=-122.4194))
+            params["latitude"] = float(st.number_input("Enter Latitude:", value=13.01697))
+            params["longitude"] = float(st.number_input("Enter Longitude:", value=77.56708))
             params["radius"] = float(st.number_input("Enter Radius (in km):", min_value=1, value=10))
             params["days"] = int(st.number_input("Enter the number of days:", min_value=1, value=30))
 
@@ -116,6 +116,6 @@ def heatmap_page():
             st.error(f"Error rendering heatmap: {str(e)}")
     else:
         # Display an initial empty map
-        initial_map = folium.Map(location=[34.0522, -118.2437], zoom_start=8)
+        initial_map = folium.Map(location=[13.01697, 77.56708], zoom_start=8)
         st_folium(initial_map, width=800, height=600)
 
