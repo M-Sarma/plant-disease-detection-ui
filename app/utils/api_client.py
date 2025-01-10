@@ -13,7 +13,7 @@ class APIClient:
             if response.status_code == 200:
                 return response.json()
             else:
-                return {"error": f"HTTP {response.status_code}: {response.text}"}
+                return {"error": f"{response.text}"}
         except ConnectionError:
             return {"error": "Connection failed. Please ensure the server is running and accessible."}
         except Timeout:
